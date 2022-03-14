@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 from longformer.diagonaled_mm_tvm import mask_invalid_locations
-from xla import XLA_AVAILABLE
+from .xla import XLA_AVAILABLE
 
 
 def _skew(x, direction, padding_value):
