@@ -22,6 +22,12 @@ def _skew2(x, padding_value):
     return x
 
 
+def _unfold_loop(x, size, step):
+    seqlen = x.size(1)
+    num_chunks = (seqlen - size) // step + 1
+    chunks = [x.narrow(1, i * step, size) for i in range(num_chunks)]
+    return torch.stack(chunks, dim=1)
+
 def _chunk(x, w):
     '''convert into overlapping chunkings. Chunk size = 2w, overlap size = w'''
 
@@ -51,8 +57,9 @@ def sliding_chunks_matmul_qk(q: torch.Tensor, k: torch.Tensor, w: int, padding_v
     q = q.transpose(1, 2).reshape(bsz * num_heads, seqlen, head_dim)
     k = k.transpose(1, 2).reshape(bsz * num_heads, seqlen, head_dim)
 
-    chunk_q = _chunk(q, w)
-    chunk_k = _chunk(k, w)
+
+    chunk_q = _unfold_loop(q, 2*w, w)
+    chunk_k = _unfold_loop(k, 2*w, w)
 
     # matrix multipication
     # bcxd: bsz*num_heads x chunks x 2w x head_dim
