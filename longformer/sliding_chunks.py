@@ -110,10 +110,11 @@ def sliding_chunks_matmul_pv(prob: torch.Tensor, v: torch.Tensor, w: int):
     padded_v = F.pad(v, (0, 0, w, w), value=-1)
 
     # chunk padded_v into chunks of size 3w and an overlap of size w
-    chunk_v_size = (bsz * num_heads, chunks_count + 1, 3 * w, head_dim)
-    chunk_v_stride = padded_v.stride()
-    chunk_v_stride = chunk_v_stride[0], w * chunk_v_stride[1], chunk_v_stride[1], chunk_v_stride[2]
-    chunk_v = padded_v.as_strided(size=chunk_v_size, stride=chunk_v_stride)
+    # chunk_v_size = (bsz * num_heads, chunks_count + 1, 3 * w, head_dim)
+    # chunk_v_stride = padded_v.stride()
+    # chunk_v_stride = chunk_v_stride[0], w * chunk_v_stride[1], chunk_v_stride[1], chunk_v_stride[2]
+    # chunk_v = padded_v.as_strided(size=chunk_v_size, stride=chunk_v_stride)
+    chunk_v = self._unfold_loop(padded_v, 3 * w, w)
 
     skewed_prob = _skew2(chunk_prob, padding_value=0)
 
