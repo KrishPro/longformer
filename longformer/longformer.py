@@ -138,7 +138,7 @@ class LongformerSelfAttention(nn.Module):
         q = self.query(hidden_states)
         k = self.key(hidden_states)
         v = self.value(hidden_states)
-        q /= math.sqrt(self.head_dim)
+        q /= torch.tensor(math.sqrt(self.head_dim), dtype=torch.float32)
 
         q = q.view(seq_len, bsz, self.num_heads, self.head_dim).transpose(0, 1)
         k = k.view(seq_len, bsz, self.num_heads, self.head_dim).transpose(0, 1)
@@ -225,7 +225,7 @@ class LongformerSelfAttention(nn.Module):
             q = self.query_global(selected_hidden_states)
             k = self.key_global(hidden_states)
             v = self.value_global(hidden_states)
-            q /= math.sqrt(self.head_dim)
+            q /= torch.tensor(math.sqrt(self.head_dim), dtype=torch.float32)
 
             q = q.contiguous().view(max_num_extra_indices_per_batch, bsz * self.num_heads, self.head_dim).transpose(0, 1)  # (bsz*self.num_heads, max_num_extra_indices_per_batch, head_dim)
             k = k.contiguous().view(-1, bsz * self.num_heads, self.head_dim).transpose(0, 1)  # bsz * self.num_heads, seq_len, head_dim)
